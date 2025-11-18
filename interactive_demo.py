@@ -92,6 +92,22 @@ user_display_timeout = 0  # 用户语音显示超时时间
 
 # ==================== 初始化函数 ====================
 
+def load_linux_config():
+    """读取Linux配置文件"""
+    config_file = "linux_config.txt"
+    config = {}
+    if os.path.exists(config_file):
+        try:
+            with open(config_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if '=' in line and not line.startswith('#'):
+                        key, value = line.split('=', 1)
+                        config[key.strip()] = value.strip()
+        except:
+            pass
+    return config
+
 def init_emotion_module():
     """初始化情感检测模块"""
     global emotion_classifier, face_cascade, emotion_target_size, cap
@@ -101,12 +117,52 @@ def init_emotion_module():
     emotion_classifier = load_model(emotion_model_path, compile=False)
     emotion_target_size = emotion_classifier.input_shape[1:3]
     
-    cap = cv2.VideoCapture(1)  # MacBook前置摄像头
-    if not cap.isOpened():
-        cap = cv2.VideoCapture(0)  # 默认摄像头
+    # 根据操作系统选择摄像头
+    system = platform.system()
+    if system == "Linux":
+        # Linux: 从配置文件读取摄像头索引
+        config = load_linux_config()
+        camera_index = config.get('camera_index', '0')
+        try:
+            camera_index = int(camera_index)
+        except:
+            camera_index = 0
+        
+        # 尝试打开指定的摄像头
+        cap = cv2.VideoCapture(camera_index)
+        if not cap.isOpened():
+            # 如果指定摄像头失败，尝试其他索引
+            for i in range(3):
+                if i != camera_index:
+                    cap = cv2.VideoCapture(i)
+                    if cap.isOpened():
+                        print(f"⚠ 警告：配置的摄像头{camera_index}无法打开，使用摄像头{i}")
+                        break
+        
+        if not cap.isOpened():
+            print("✗ 错误：无法打开摄像头")
+            print("请检查：")
+            print("  1. 摄像头是否已连接到虚拟机")
+            print("  2. 运行 'ls -l /dev/video*' 查看可用设备")
+            print("  3. 编辑 linux_config.txt 设置正确的 camera_index")
+            return False
+    elif system == "Darwin":  # macOS
+        cap = cv2.VideoCapture(1)  # MacBook前置摄像头
+        if not cap.isOpened():
+            cap = cv2.VideoCapture(0)  # 默认摄像头
+        if not cap.isOpened():
+            print("✗ 错误：无法打开摄像头")
+            return False
+    else:  # Windows 或其他
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            cap = cv2.VideoCapture(1)
+        if not cap.isOpened():
+            print("✗ 错误：无法打开摄像头")
+            return False
     
     print("✓ 情感检测模块初始化完成")
-    return cap.isOpened()
+    return True
 
 def get_baidu_access_token(api_key=None, secret_key=None):
     """获取百度ASR Access Token"""
@@ -1458,22 +1514,46 @@ def main():
             frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             draw = ImageDraw.Draw(frame_pil)
             
-            # 尝试加载中文字体
-            try:
-                font_path = "/System/Library/Fonts/PingFang.ttc"
-                font_large = ImageFont.truetype(font_path, 24)
-                font_small = ImageFont.truetype(font_path, 20)
-                font_medium = ImageFont.truetype(font_path, 22)
-            except:
+            # 尝试加载中文字体（根据操作系统选择）
+            system = platform.system()
+            font_large = None
+            font_small = None
+            font_medium = None
+            
+            if system == "Darwin":  # macOS
+                font_paths = [
+                    "/System/Library/Fonts/PingFang.ttc",
+                    "/System/Library/Fonts/STHeiti Medium.ttc"
+                ]
+            elif system == "Linux":  # Linux
+                font_paths = [
+                    "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+                    "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+                    "/usr/share/fonts/truetype/arphic/uming.ttc",
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+                ]
+            else:  # Windows 或其他
+                font_paths = [
+                    "C:/Windows/Fonts/simhei.ttf",
+                    "C:/Windows/Fonts/msyh.ttc"
+                ]
+            
+            # 尝试加载字体
+            for font_path in font_paths:
                 try:
-                    font_path = "/System/Library/Fonts/STHeiti Medium.ttc"
-                    font_large = ImageFont.truetype(font_path, 24)
-                    font_small = ImageFont.truetype(font_path, 20)
-                    font_medium = ImageFont.truetype(font_path, 22)
+                    if os.path.exists(font_path):
+                        font_large = ImageFont.truetype(font_path, 24)
+                        font_small = ImageFont.truetype(font_path, 20)
+                        font_medium = ImageFont.truetype(font_path, 22)
+                        break
                 except:
-                    font_large = ImageFont.load_default()
-                    font_small = ImageFont.load_default()
-                    font_medium = ImageFont.load_default()
+                    continue
+            
+            # 如果所有字体都加载失败，使用默认字体
+            if font_large is None:
+                font_large = ImageFont.load_default()
+                font_small = ImageFont.load_default()
+                font_medium = ImageFont.load_default()
             
             # 计算显示区域位置
             frame_height = frame.shape[0]
