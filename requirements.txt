@@ -1,0 +1,15 @@
+# 核心依赖
+opencv-python>=4.5.0
+numpy>=1.19.0
+keras>=2.0.0
+pillow>=8.0.0
+requests>=2.25.0
+
+# 音频处理（可选）
+pyaudio>=0.2.11
+
+# 键盘监听（可选）
+pynput>=1.7.0
+
+# 语音识别（可选，使用百度SDK时）
+baidu-aip>=4.0.0
