@@ -1655,10 +1655,10 @@ def main():
             try:
                 # 某些PyAudio版本可能没有is_active方法
                 if hasattr(audio_stream, 'is_active') and audio_stream.is_active():
-        audio_stream.stop_stream()
+                    audio_stream.stop_stream()
             except:
                 pass
-        audio_stream.close()
+            audio_stream.close()
             audio_stream = None
         except Exception as e:
             audio_stream = None
@@ -1666,7 +1666,7 @@ def main():
     # 4. 终止PyAudio实例
     if pyaudio_instance:
         try:
-        pyaudio_instance.terminate()
+            pyaudio_instance.terminate()
             pyaudio_instance = None
         except Exception as e:
             pass
@@ -1674,7 +1674,7 @@ def main():
     # 5. 停止键盘监听
     if listener:
         try:
-        listener.stop()
+            listener.stop()
             listener = None
         except Exception as e:
             pass
@@ -1682,14 +1682,14 @@ def main():
     # 6. 释放摄像头
     if cap:
         try:
-        cap.release()
+            cap.release()
             cap = None
         except Exception as e:
             pass
     
     # 7. 关闭OpenCV窗口
     try:
-    cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
     except:
         pass
     
