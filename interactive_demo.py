@@ -35,7 +35,17 @@ import threading
 import urllib.parse
 import subprocess
 import platform
-from keras.models import load_model
+# 兼容新旧版本Keras：优先使用tensorflow.keras，否则使用旧版keras
+try:
+    from tensorflow.keras.models import load_model
+    print("✓ 使用 tensorflow.keras")
+except ImportError:
+    try:
+        from keras.models import load_model
+        print("✓ 使用 keras (旧版本)")
+    except ImportError:
+        print("✗ 错误：未找到 keras 或 tensorflow.keras")
+        raise
 from statistics import mode
 from utils.datasets import get_labels
 from utils.inference import apply_offsets

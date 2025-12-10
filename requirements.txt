@@ -1,7 +1,11 @@
 # 核心依赖
 opencv-python>=4.5.0
 numpy>=1.19.0
-keras==2.15.0  # 使用旧版本Keras，不需要TensorFlow作为后端（兼容旧模型）
+# Keras选项（二选一）：
+# 选项1：使用旧版Keras（不需要TensorFlow，推荐）
+keras==2.15.0
+# 选项2：使用新版Keras（需要TensorFlow）
+# tensorflow>=2.15.0
 pillow>=8.0.0
 requests>=2.25.0
 
