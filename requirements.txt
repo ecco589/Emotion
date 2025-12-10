@@ -4,6 +4,7 @@ opencv-python==4.10.0.84  # 兼容 numpy<2.0 和 TensorFlow
 numpy>=1.26.0,<2.0.0  # TensorFlow 2.16+ 要求 numpy<2.0
 tensorflow==2.16.1  # Python 3.12 兼容版本（自带 Keras）
 scipy>=1.11.0,<1.14.0  # 兼容 numpy<2.0 和 Python 3.12
+pandas>=2.0.0,<2.2.0  # 兼容 numpy<2.0 和 Python 3.12
 pillow>=8.0.0
 requests>=2.25.0
 
