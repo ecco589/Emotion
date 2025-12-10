@@ -1,11 +1,8 @@
-# 核心依赖
-opencv-python>=4.5.0
-numpy>=1.19.0
-# Keras选项（二选一）：
-# 选项1：使用旧版Keras（不需要TensorFlow，推荐）
-keras==2.15.0
-# 选项2：使用新版Keras（需要TensorFlow）
-# tensorflow>=2.15.0
+# 核心依赖（兼容 Python 3.12）
+# 注意：这些版本是经过测试的兼容组合
+opencv-python==4.10.0.84  # 兼容 numpy<2.0 和 TensorFlow
+numpy>=1.26.0,<2.0.0  # TensorFlow 2.16+ 要求 numpy<2.0
+tensorflow==2.16.1  # Python 3.12 兼容版本（自带 Keras）
 pillow>=8.0.0
 requests>=2.25.0
 
