@@ -1,7 +1,7 @@
 # 核心依赖
 opencv-python>=4.5.0
 numpy>=1.19.0
-keras>=2.0.0
+keras==2.15.0  # 使用旧版本Keras，不需要TensorFlow作为后端（兼容旧模型）
 pillow>=8.0.0
 requests>=2.25.0
 
